@@ -24,7 +24,7 @@ local MyLibrary = {
             ["Color Dark Text"] = Color3.fromRGB(160, 160, 160) -- Texto secundário (Cinza claro)
         },
     },
-}
+	
 	Info = {
 		Version = "1.1.0"
 	},
