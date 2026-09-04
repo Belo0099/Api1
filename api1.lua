@@ -12,9 +12,9 @@ local MyLibrary = {
     Themes = {
         Main = {
             ["Color Hub 1"] = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 30, 30)),   -- Vermelho brilhante
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(180, 0, 0)),     -- Vermelho médio
-                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(100, 0, 0))      -- Vermelho escuro
+                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),   -- Preto (topo)
+                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(120, 0, 0)),    -- Vermelho médio (meio)
+                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(200, 20, 20))   -- Vermelho (base)
             }),
 
             ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),       -- Fundo principal (Preto profundo)
