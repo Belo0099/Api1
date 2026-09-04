@@ -12,18 +12,19 @@ local MyLibrary = {
     Themes = {
         Main = {
             ["Color Hub 1"] = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 210, 255)),   -- Ciano brilhante
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 160, 210)),   -- Ciano médio
-                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 120, 170))    -- Ciano profundo
+                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 30, 30)),   -- Vermelho brilhante
+                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(180, 0, 0)),     -- Vermelho médio
+                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(100, 0, 0))      -- Vermelho escuro
             }),
 
-            ["Color Hub 2"] = Color3.fromRGB(10, 18, 26),      -- Fundo principal (Azul-noite escuro)
-            ["Color Stroke"] = Color3.fromRGB(0, 150, 200),    -- Borda moderna em ciano
-            ["Color Theme"] = Color3.fromRGB(20, 38, 52),      -- Inputs / botões
-            ["Color Text"] = Color3.fromRGB(240, 250, 255),    -- Branco azulado suave
-            ["Color Dark Text"] = Color3.fromRGB(130, 170, 190) -- Texto secundário azulado
+            ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),       -- Fundo principal (Preto profundo)
+            ["Color Stroke"] = Color3.fromRGB(200, 20, 20),     -- Borda em vermelho
+            ["Color Theme"] = Color3.fromRGB(30, 30, 30),       -- Inputs / botões (Cinza escuro)
+            ["Color Text"] = Color3.fromRGB(255, 255, 255),     -- Texto principal (Branco puro)
+            ["Color Dark Text"] = Color3.fromRGB(160, 160, 160) -- Texto secundário (Cinza claro)
         },
-},
+    },
+}
 	Info = {
 		Version = "1.1.0"
 	},
