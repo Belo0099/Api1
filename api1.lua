@@ -241,9 +241,7 @@ end
 
 -- ── ScreenGui ─────────────────────────────────────────
 local ScreenGui
-
--- Tenta CoreGui primeiro, cai para PlayerGui se falhar
-local ok_sg, err_sg = pcall(function()
+local ok_sg = pcall(function()
     ScreenGui = Create("ScreenGui", CoreGui, {
         Name="redz_Library_VIP", ResetOnSpawn=false,
         ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
@@ -251,8 +249,7 @@ local ok_sg, err_sg = pcall(function()
         Create("UIScale",{Scale=UIScale,Name="Scale"}),
     })
 end)
-
-if not ok_sg then
+if not ok_sg or not ScreenGui then
     ScreenGui = Create("ScreenGui", Player.PlayerGui, {
         Name="redz_Library_VIP", ResetOnSpawn=false,
         ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
@@ -260,8 +257,6 @@ if not ok_sg then
         Create("UIScale",{Scale=UIScale,Name="Scale"}),
     })
 end
-
--- Remove instância duplicada se existir
 pcall(function()
     local ex = CoreGui:FindFirstChild("redz_Library_VIP")
     if ex and ex~=ScreenGui then ex:Destroy() end
@@ -280,8 +275,8 @@ end
 
 local function MakeDrag(inst)
     task.spawn(function()
-        inst.Active=true
-        local ds,sp,on
+        inst.Active = true
+        local ds, sp, on
         inst.MouseButton1Down:Connect(function() on=true end)
         inst.InputBegan:Connect(function(inp)
             if inp.UserInputType==Enum.UserInputType.MouseButton1
@@ -290,11 +285,11 @@ local function MakeDrag(inst)
                 while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                     RunService.Heartbeat:Wait()
                     if on then
-                        local d=inp.Position-ds
+                        local d = inp.Position - ds
                         CT({inst,"Position",UDim2.new(sp.X.Scale,sp.X.Offset+d.X/UIScale,sp.Y.Scale,sp.Y.Offset+d.Y/UIScale),0.18})
                     end
                 end
-                on=false
+                on = false
             end
         end)
     end)
@@ -458,7 +453,7 @@ function MyLibrary:MakeWindow(Configs)
     Make("Corner", MainFrame, UDim.new(0,10))
     Make("Gradient", MainFrame, {Rotation=45})
 
-    -- drag
+    -- drag pelo MainFrame
     do
         local ds,sp,on=nil,nil,false
         MainFrame.InputBegan:Connect(function(inp)
@@ -475,7 +470,7 @@ function MyLibrary:MakeWindow(Configs)
             if on and ds then
                 local ok2, mp = pcall(function() return UserInputService:GetMouseLocation() end)
                 if ok2 and mp then
-                    local d = mp - Vector2.new(ds.X, ds.Y)
+                    local d = mp - Vector2.new(ds.X,ds.Y)
                     MainFrame.Position = UDim2.new(0, sp.X.Offset+d.X/UIScale,
                                                    0, sp.Y.Offset+d.Y/UIScale)
                 end
@@ -490,7 +485,7 @@ function MyLibrary:MakeWindow(Configs)
         Size=UDim2.new(1,0,0,30), BackgroundTransparency=1, Name="TopBar", ZIndex=10,
     })
 
-    InsertTheme(Create("TextLabel", TopBar, {
+    local TitleLabel = InsertTheme(Create("TextLabel", TopBar, {
         Position=UDim2.new(0,15,0.5), AnchorPoint=Vector2.new(0,0.5),
         AutomaticSize=Enum.AutomaticSize.XY, Text=WTitle,
         TextXAlignment=Enum.TextXAlignment.Left, TextSize=12,
@@ -498,7 +493,7 @@ function MyLibrary:MakeWindow(Configs)
         Font=Enum.Font.BuilderSansBold, Name="Title", ZIndex=10,
     }),"Text")
 
-    InsertTheme(Create("TextLabel", TopBar, {
+    local SubTitleLabel = InsertTheme(Create("TextLabel", TopBar, {
         Position=UDim2.new(0,15,1,-2), AnchorPoint=Vector2.new(0,1),
         AutomaticSize=Enum.AutomaticSize.XY, Text=WSubTitle,
         TextXAlignment=Enum.TextXAlignment.Left, TextSize=9,
@@ -506,6 +501,7 @@ function MyLibrary:MakeWindow(Configs)
         Font=Enum.Font.Gotham, Name="SubTitle", ZIndex=10,
     }),"DarkText")
 
+    -- Botão fechar
     local CloseBtn = Create("ImageButton", TopBar, {
         Size=UDim2.new(0,14,0,14), Position=UDim2.new(1,-12,0.5),
         AnchorPoint=Vector2.new(1,0.5), BackgroundTransparency=1,
@@ -513,6 +509,7 @@ function MyLibrary:MakeWindow(Configs)
         Name="Close", ZIndex=10,
     })
 
+    -- Botão minimizar
     local MinBtn = Create("ImageButton", TopBar, {
         Size=UDim2.new(0,14,0,14), Position=UDim2.new(1,-34,0.5),
         AnchorPoint=Vector2.new(1,0.5), BackgroundTransparency=1,
@@ -520,6 +517,7 @@ function MyLibrary:MakeWindow(Configs)
         Name="Minimize", ZIndex=10,
     })
 
+    -- Linha divisória
     Create("Frame", MainFrame, {
         Size=UDim2.new(1,0,0,1), Position=UDim2.new(0,0,0,30),
         BackgroundColor3=Theme["Color Stroke"], BackgroundTransparency=0.5,
@@ -534,6 +532,7 @@ function MyLibrary:MakeWindow(Configs)
     }),"Frame")
     Make("Corner", Sidebar, UDim.new(0,8))
 
+    -- Perfil
     local ProfileFrame = InsertTheme(Create("Frame", Sidebar, {
         Size=UDim2.new(1,0,0,66), Position=UDim2.new(0,0,0,6),
         BackgroundColor3=Theme["Color Hub 2"], BorderSizePixel=0, ZIndex=3,
@@ -560,12 +559,14 @@ function MyLibrary:MakeWindow(Configs)
         BackgroundTransparency=1, ZIndex=4,
     }),"DarkText")
 
+    -- Divisória perfil
     Create("Frame", Sidebar, {
         Size=UDim2.new(1,-16,0,1), Position=UDim2.new(0,8,0,78),
         BackgroundColor3=Theme["Color Stroke"], BackgroundTransparency=0.4,
         BorderSizePixel=0, ZIndex=3,
     })
 
+    -- Scroll das abas
     local TabContainer = InsertTheme(Create("ScrollingFrame", Sidebar, {
         Size=UDim2.new(1,0,1,-88), Position=UDim2.new(0,0,0,88),
         BackgroundTransparency=1, BorderSizePixel=0,
@@ -610,6 +611,10 @@ function MyLibrary:MakeWindow(Configs)
         Sidebar.Size             = UDim2.new(0,tw2,1,-31)
         ContentContainer.Size    = UDim2.new(1,-(tw2+8),1,-36)
         ContentContainer.Position= UDim2.new(0,tw2+6,0,34)
+        -- salva tamanhos
+        MyLibrary.Save.UISize  = {nw, nh}
+        MyLibrary.Save.TabSize = tw2
+        SaveJson("redz_library.json", MyLibrary.Save)
     end
     RH1:GetPropertyChangedSignal("Position"):Connect(ApplyResize)
     RH2:GetPropertyChangedSignal("Position"):Connect(ApplyResize)
@@ -618,11 +623,94 @@ function MyLibrary:MakeWindow(Configs)
     local minimized = false
     local savedSize = UDim2.fromOffset(SW,SH)
 
-    CloseBtn.Activated:Connect(function()
-        MainFrame.Visible = false
-    end)
+    local Window = {}
 
-    MinBtn.Activated:Connect(function()
+    -- Dialog (do script 2, adaptado)
+    function Window:Dialog(cfg)
+        if MainFrame:FindFirstChild("__Dialog") then return end
+        if minimized then Window:MinimizeBtn() end
+
+        local DTitle   = cfg[1] or cfg.Title   or "Dialog"
+        local DText    = cfg[2] or cfg.Text    or "This is a Dialog"
+        local DOptions = cfg[3] or cfg.Options or {}
+
+        local overlay = InsertTheme(Create("Frame", MainFrame, {
+            Size=UDim2.fromScale(1,1), BackgroundColor3=Color3.fromRGB(0,0,0),
+            BackgroundTransparency=0.5, Active=true, Name="__Dialog", ZIndex=20,
+        }),"Stroke")
+        Make("Corner", overlay, UDim.new(0,10))
+
+        local box = Create("Frame", overlay, {
+            Size=UDim2.fromOffset(270,160), Position=UDim2.fromScale(0.5,0.5),
+            AnchorPoint=Vector2.new(0.5,0.5), BackgroundColor3=Color3.fromRGB(18,18,18), ZIndex=21,
+        })
+        Make("Corner", box, UDim.new(0,8))
+        Make("Gradient", box, {Rotation=270})
+
+        InsertTheme(Create("TextLabel", box, {
+            Size=UDim2.new(1,-20,0,20), Position=UDim2.fromOffset(12,8),
+            Text=DTitle, Font=Enum.Font.GothamBold, TextSize=15,
+            TextColor3=Theme["Color Text"], BackgroundTransparency=1,
+            TextXAlignment=Enum.TextXAlignment.Left, ZIndex=22,
+        }),"Text")
+        InsertTheme(Create("TextLabel", box, {
+            Size=UDim2.new(1,-25,0,50), Position=UDim2.fromOffset(12,30),
+            Text=DText, Font=Enum.Font.GothamMedium, TextSize=12, TextWrapped=true,
+            TextColor3=Theme["Color Dark Text"], BackgroundTransparency=1,
+            TextXAlignment=Enum.TextXAlignment.Left, ZIndex=22,
+        }),"DarkText")
+
+        local BtnHolder = Create("Frame", box, {
+            Size=UDim2.new(1,0,0,36), Position=UDim2.new(0,0,1,-44),
+            BackgroundTransparency=1, ZIndex=22,
+        },{
+            Create("UIListLayout",{
+                FillDirection=Enum.FillDirection.Horizontal,
+                HorizontalAlignment=Enum.HorizontalAlignment.Center,
+                Padding=UDim.new(0,10),
+            }),
+        })
+
+        local D={}
+        local btnCount=0
+        function D:Button(bcfg)
+            btnCount=btnCount+1
+            local bn = bcfg[1] or bcfg.Name or ""
+            local bc = bcfg[2] or bcfg.Callback or function() end
+            local b  = Make("Button", BtnHolder, {
+                Size=UDim2.new(0,100,0,28), AutoButtonColor=false,
+            })
+            Make("Corner",b,UDim.new(0,6))
+            SetProps(b,{Text=bn,Font=Enum.Font.GothamBold,TextSize=12,
+                TextColor3=Theme["Color Text"]})
+            b.Activated:Connect(function() D:Close(); task.spawn(bc) end)
+            -- redimensiona botões existentes
+            local btns = {}
+            for _,ch in ipairs(BtnHolder:GetChildren()) do
+                if ch:IsA("TextButton") then table.insert(btns,ch) end
+            end
+            for _,btn in ipairs(btns) do
+                btn.Size = UDim2.new(1/#btns - 0.05, 0, 0, 28)
+            end
+        end
+        function D:Close() overlay:Destroy() end
+
+        for _,btn in ipairs(DOptions) do D:Button(btn) end
+        return D
+    end
+
+    function Window:CloseBtn()
+        Window:Dialog({
+            Title = "Close",
+            Text  = "Do you really want to close the UI?",
+            Options = {
+                {"Confirm", function() ScreenGui:Destroy() end},
+                {"Cancel"},
+            }
+        })
+    end
+
+    function Window:MinimizeBtn()
         if minimized then
             MinBtn.Image = "rbxassetid://10734896206"
             CT({MainFrame,"Size",savedSize,0.25,true})
@@ -633,74 +721,30 @@ function MyLibrary:MakeWindow(Configs)
             CT({MainFrame,"Size",UDim2.fromOffset(MainFrame.AbsoluteSize.X,30),0.25,true})
             minimized = true
         end
-    end)
-
-    -- ── Window object ─────────────────────────────────
-    local Window   = {}
-    local FirstTab = false
-    local ContainerList = {}
+    end
 
     function Window:Minimize() MainFrame.Visible = not MainFrame.Visible end
 
-    function Window:Dialog(cfg)
-        if MainFrame:FindFirstChild("__Dialog") then return end
-        local DTitle   = cfg[1] or cfg.Title   or "Dialog"
-        local DText    = cfg[2] or cfg.Text    or ""
-        local DOptions = cfg[3] or cfg.Options or {}
-
-        local overlay = InsertTheme(Create("Frame", MainFrame, {
-            Size=UDim2.fromScale(1,1), BackgroundColor3=Color3.fromRGB(0,0,0),
-            BackgroundTransparency=0.5, Active=true, Name="__Dialog", ZIndex=20,
-        }),"Stroke")
-        Make("Corner", overlay, UDim.new(0,10))
-
-        local box = Create("Frame", overlay, {
-            Size=UDim2.fromOffset(260,150), Position=UDim2.fromScale(0.5,0.5),
-            AnchorPoint=Vector2.new(0.5,0.5), BackgroundColor3=Color3.fromRGB(18,18,18), ZIndex=21,
-        })
-        Make("Corner", box, UDim.new(0,8))
-        Make("Gradient", box, {Rotation=270})
-
-        InsertTheme(Create("TextLabel", box, {
-            Size=UDim2.new(1,-20,0,20), Position=UDim2.fromOffset(12,8),
-            Text=DTitle, Font=Enum.Font.GothamBold, TextSize=14,
-            TextColor3=Theme["Color Text"], BackgroundTransparency=1,
-            TextXAlignment=Enum.TextXAlignment.Left, ZIndex=22,
-        }),"Text")
-        InsertTheme(Create("TextLabel", box, {
-            Size=UDim2.new(1,-20,0,50), Position=UDim2.fromOffset(12,30),
-            Text=DText, Font=Enum.Font.Gotham, TextSize=11, TextWrapped=true,
-            TextColor3=Theme["Color Dark Text"], BackgroundTransparency=1,
-            TextXAlignment=Enum.TextXAlignment.Left, ZIndex=22,
-        }),"DarkText")
-
-        local BtnHolder = Create("Frame", box, {
-            Size=UDim2.new(1,-20,0,32), Position=UDim2.new(0,10,1,-42),
-            BackgroundTransparency=1, ZIndex=22,
-        },{
-            Create("UIListLayout",{
-                FillDirection=Enum.FillDirection.Horizontal,
-                HorizontalAlignment=Enum.HorizontalAlignment.Center,
-                Padding=UDim.new(0,8),
-            }),
-        })
-
-        local D={}
-        function D:Button(bcfg)
-            local bn = bcfg[1] or bcfg.Name or ""
-            local bc = bcfg[2] or bcfg.Callback or function() end
-            local b  = Make("Button", BtnHolder, {
-                Size=UDim2.new(0,100,1,0), AutoButtonColor=false,
-            })
-            Make("Corner",b,UDim.new(0,6))
-            SetProps(b,{Text=bn,Font=Enum.Font.GothamBold,TextSize=12,
-                TextColor3=Theme["Color Text"]})
-            b.Activated:Connect(function() D:Close(); task.spawn(bc) end)
+    function Window:Set(v1,v2)
+        if type(v1)=="string" and type(v2)=="string" then
+            TitleLabel.Text=v1; SubTitleLabel.Text=v2
+        elseif type(v1)=="string" then
+            TitleLabel.Text=v1
         end
-        function D:Close() overlay:Destroy() end
+    end
 
-        for _,btn in ipairs(DOptions) do D:Button(btn) end
-        return D
+    function Window:AddMinimizeButton(cfg)
+        cfg = cfg or {}
+        local btn = MakeDrag(Create("ImageButton", ScreenGui, {
+            Size=UDim2.fromOffset(35,35), Position=UDim2.fromScale(0.15,0.15),
+            BackgroundTransparency=1, AutoButtonColor=false,
+        }))
+        if cfg.Button then SetProps(btn, cfg.Button) end
+        local stroke, corner
+        if cfg.Corner then corner=Make("Corner",btn); SetProps(corner,cfg.Corner) end
+        if cfg.Stroke then stroke=Make("Stroke",btn); SetProps(stroke,cfg.Stroke) end
+        btn.Activated:Connect(function() Window:Minimize() end)
+        return {Button=btn, Stroke=stroke, Corner=corner}
     end
 
     function Window:SelectTab(sel)
@@ -713,7 +757,13 @@ function MyLibrary:MakeWindow(Configs)
         end
     end
 
+    CloseBtn.Activated:Connect(function() Window:CloseBtn() end)
+    MinBtn.Activated:Connect(function() Window:MinimizeBtn() end)
+
     -- ── MakeTab ───────────────────────────────────────
+    local FirstTab = false
+    local ContainerList = {}
+
     function Window:MakeTab(paste, cfg)
         if type(paste)=="table" then cfg=paste end
         local TName = cfg[1] or cfg.Title or cfg.Name or "Tab"
@@ -723,28 +773,32 @@ function MyLibrary:MakeWindow(Configs)
             TIcon=false
         end
 
-        local tabBtn = Make("Button", TabContainer, {Size=UDim2.new(1,0,0,30)})
+        local tabBtn = Make("Button", TabContainer, {Size=UDim2.new(1,0,0,28)})
         Make("Corner", tabBtn, UDim.new(0,6))
 
         local tabIcon = InsertTheme(Create("ImageLabel", tabBtn, {
-            Size=UDim2.new(0,14,0,14), Position=UDim2.new(0,8,0.5,-7),
+            Size=UDim2.new(0,13,0,13), Position=UDim2.new(0,8,0.5),
+            AnchorPoint=Vector2.new(0,0.5),
             Image=TIcon or "", ImageColor3=Theme["Color Dark Text"],
             BackgroundTransparency=1, ZIndex=2,
         }),"DarkText")
 
         local tabLabel = InsertTheme(Create("TextLabel", tabBtn, {
-            Size=UDim2.new(1,TIcon and -28 or -14,1,0),
-            Position=UDim2.fromOffset(TIcon and 28 or 14,0),
-            BackgroundTransparency=1, Font=Enum.Font.GothamMedium,
-            Text=TName, TextColor3=Theme["Color Dark Text"],
-            TextSize=11, TextXAlignment=Enum.TextXAlignment.Left,
+            Size=UDim2.new(1,TIcon and -28 or -15,1,0),
+            Position=UDim2.fromOffset(TIcon and 28 or 15,0),
+            BackgroundTransparency=1, Font=Enum.Font.BuilderSansBold,
+            Text=TName, TextColor3=Theme["Color Text"],
+            TextSize=10, TextXAlignment=Enum.TextXAlignment.Left,
             TextTruncate=Enum.TextTruncate.AtEnd, ZIndex=2,
-        }),"DarkText")
+            TextTransparency = FirstTab and 0.3 or 0,
+        }),"Text")
 
         local tabBar = InsertTheme(Create("Frame", tabBtn, {
-            Size=UDim2.new(0,3,0,4), Position=UDim2.new(0,1,0.5),
-            AnchorPoint=Vector2.new(0,0.5), BackgroundColor3=Theme["Color Theme"],
-            BackgroundTransparency=1, ZIndex=2,
+            Size = FirstTab and UDim2.new(0,4,0,4) or UDim2.new(0,4,0,13),
+            Position=UDim2.new(0,1,0.5), AnchorPoint=Vector2.new(0,0.5),
+            BackgroundColor3=Theme["Color Theme"],
+            BackgroundTransparency = FirstTab and 1 or 0,
+            ZIndex=2,
         }),"Theme")
         Make("Corner", tabBar, UDim.new(0.5,0))
 
@@ -754,10 +808,10 @@ function MyLibrary:MakeWindow(Configs)
             ScrollBarImageColor3=Theme["Color Theme"],
             AutomaticCanvasSize=Enum.AutomaticSize.Y,
             ScrollingDirection=Enum.ScrollingDirection.Y,
-            CanvasSize=UDim2.new(), Name="Container_"..TName,
+            CanvasSize=UDim2.new(), Name=("Container %i [ %s ]"):format(#ContainerList+1, TName),
         },{
-            Create("UIPadding",{PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),
-                PaddingTop=UDim.new(0,8),PaddingBottom=UDim.new(0,8)}),
+            Create("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10),
+                PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10)}),
             Create("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,5)}),
         }),"ScrollBar")
 
@@ -769,27 +823,31 @@ function MyLibrary:MakeWindow(Configs)
             for _,f in pairs(ContainerList) do if f~=Container then f.Parent=nil end end
             Container.Parent=ContentContainer
 
+            -- animação entrada
+            Container.Size = UDim2.new(1,0,1,150)
+            CT({Container,"Size",UDim2.new(1,0,1,0),0.3})
+
+            -- reset visual de todas as tabs
             for _,ch in ipairs(TabContainer:GetChildren()) do
                 if ch:IsA("TextButton") then
-                    CT({ch,"BackgroundColor3",Theme["Color Hub 2"],0.2})
                     local img=ch:FindFirstChildOfClass("ImageLabel")
                     local txt=ch:FindFirstChildOfClass("TextLabel")
                     local bar=ch:FindFirstChildOfClass("Frame")
-                    if img then CT({img,"ImageColor3",Theme["Color Dark Text"],0.2}) end
-                    if txt then CT({txt,"TextColor3",Theme["Color Dark Text"],0.2}) end
+                    if img then CT({img,"ImageTransparency",0.3,0.35}) end
+                    if txt then CT({txt,"TextTransparency",0.3,0.35}) end
                     if bar then
-                        CT({bar,"Size",UDim2.new(0,3,0,4),0.2})
-                        CT({bar,"BackgroundTransparency",1,0.2})
+                        CT({bar,"Size",UDim2.new(0,4,0,4),0.35})
+                        CT({bar,"BackgroundTransparency",1,0.35})
                     end
                 end
             end
             for _,t in pairs(MyLibrary.Tabs) do if t.Cont~=Container then t.func:Disable() end end
 
-            CT({tabBtn,"BackgroundColor3",Color3.fromRGB(30,10,10),0.2})
-            CT({tabIcon,"ImageColor3",Theme["Color Theme"],0.2})
-            CT({tabLabel,"TextColor3",Color3.fromRGB(255,255,255),0.2})
-            CT({tabBar,"Size",UDim2.new(0,3,0,14),0.2})
-            CT({tabBar,"BackgroundTransparency",0,0.2})
+            -- ativa visual da tab selecionada
+            CT({tabIcon,"ImageTransparency",0,0.35})
+            CT({tabLabel,"TextTransparency",0,0.35})
+            CT({tabBar,"Size",UDim2.new(0,4,0,13),0.35})
+            CT({tabBar,"BackgroundTransparency",0,0.35})
         end
 
         tabBtn.Activated:Connect(activate)
@@ -799,11 +857,18 @@ function MyLibrary:MakeWindow(Configs)
         table.insert(MyLibrary.Tabs,{TabInfo={Name=TName,Icon=TIcon},func=Tab,Cont=Container})
         Tab.Cont=Container
 
-        function Tab:Disable() Container.Parent=nil end
+        function Tab:Disable()
+            Container.Parent=nil
+            CT({tabIcon,"ImageTransparency",0.3,0.35})
+            CT({tabLabel,"TextTransparency",0.3,0.35})
+            CT({tabBar,"Size",UDim2.new(0,4,0,4),0.35})
+            CT({tabBar,"BackgroundTransparency",1,0.35})
+        end
         function Tab:Enable()  activate() end
         function Tab:Visible(b) Funcs:ToggleVisible(tabBtn,b); Funcs:ToggleParent(Container,b,ContentContainer) end
         function Tab:Destroy()  tabBtn:Destroy(); Container:Destroy() end
 
+        -- ── AddSection ────────────────────────────────
         function Tab:AddSection(c)
             local sn=type(c)=="string" and c or c[1] or c.Name or c.Title or "Section"
             local sf=Create("Frame",Container,{Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,Name="Option"})
@@ -820,6 +885,7 @@ function MyLibrary:MakeWindow(Configs)
             return S
         end
 
+        -- ── AddParagraph ──────────────────────────────
         function Tab:AddParagraph(c)
             local pn=c[1] or c.Title or "Paragraph"
             local pd=c[2] or c.Text  or ""
@@ -836,6 +902,7 @@ function MyLibrary:MakeWindow(Configs)
             return P
         end
 
+        -- ── AddButton ─────────────────────────────────
         function Tab:AddButton(c)
             local bn=c[1] or c.Name or c.Title or "Button"
             local bd=c.Desc or c.Description or ""
@@ -856,6 +923,7 @@ function MyLibrary:MakeWindow(Configs)
             return B
         end
 
+        -- ── AddToggle ─────────────────────────────────
         function Tab:AddToggle(c)
             local tn=c[1] or c.Name or c.Title or "Toggle"
             local td=c.Desc or c.Description or ""
@@ -883,13 +951,13 @@ function MyLibrary:MakeWindow(Configs)
                 if busy then return end; busy=true; def=v
                 SetFlag(flag,def); Funcs:FireCallback(cb,def)
                 if def then
-                    CT({dot,"Position",UDim2.new(1,0,0.5),0.22})
-                    CT({dot,"AnchorPoint",Vector2.new(1,0.5),0.22})
-                    CT({dot,"BackgroundTransparency",0,0.22})
+                    CT({dot,"Position",UDim2.new(1,0,0.5),0.25})
+                    CT({dot,"AnchorPoint",Vector2.new(1,0.5),0.25})
+                    CT({dot,"BackgroundTransparency",0,0.25})
                 else
-                    CT({dot,"Position",UDim2.new(0,0,0.5),0.22})
-                    CT({dot,"AnchorPoint",Vector2.new(0,0.5),0.22})
-                    CT({dot,"BackgroundTransparency",0.8,0.22})
+                    CT({dot,"Position",UDim2.new(0,0,0.5),0.25})
+                    CT({dot,"AnchorPoint",Vector2.new(0,0.5),0.25})
+                    CT({dot,"BackgroundTransparency",0.8,0.25})
                 end
                 busy=false
             end
@@ -903,12 +971,15 @@ function MyLibrary:MakeWindow(Configs)
             function T:Set(v1,v2)
                 if type(v1)=="string" and type(v2)=="string" then lf:SetTitle(v1);lf:SetDesc(v2)
                 elseif type(v1)=="string" then lf:SetTitle(v1)
-                elseif type(v1)=="boolean" then task.spawn(setTog,v1)
+                elseif type(v1)=="boolean" then
+                    if busy and v2 then repeat task.wait() until not busy end
+                    task.spawn(setTog,v1)
                 elseif type(v1)=="function" then cb={v1} end
             end
             return T
         end
 
+        -- ── AddSlider ─────────────────────────────────
         function Tab:AddSlider(c)
             local sn  = c[1] or c.Name or c.Title or "Slider"
             local sd  = c.Desc or c.Description or ""
@@ -919,6 +990,10 @@ function MyLibrary:MakeWindow(Configs)
             local flag= c[7] or c.Flag or false
             local def = c[5] or c.Default or minV
             if CheckFlag(flag) then def=GetFlag(flag) end
+
+            -- normaliza para Increase
+            local minN = minV / inc
+            local maxN = maxV / inc
 
             local btn,lf=ButtonFrame(Container,sn,sd,UDim2.new(1,-180))
             local sh=Create("TextButton",btn,{
@@ -936,6 +1011,13 @@ function MyLibrary:MakeWindow(Configs)
                 Size=UDim2.new(0,6,0,12),BackgroundColor3=Color3.fromRGB(220,220,220),
                 Position=UDim2.fromScale(0,0.5),AnchorPoint=Vector2.new(0.5,0.5),BackgroundTransparency=0.2,
             }); Make("Corner",knob)
+
+            -- ponto de referência invisível para calcular posição do mouse
+            local baseRef=Create("Frame",bar,{
+                Position=UDim2.new(0,0,0.5,0), Visible=false,
+                Size=UDim2.fromOffset(1,1), BackgroundTransparency=1,
+            })
+
             local lv=InsertTheme(Create("TextLabel",sh,{
                 Size=UDim2.new(0,30,0,14),AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(0,0,0.5),
                 BackgroundTransparency=1,TextColor3=Theme["Color Text"],
@@ -946,37 +1028,42 @@ function MyLibrary:MakeWindow(Configs)
             local function upd()
                 local pct=knob.Position.X.Scale
                 ind.Size=UDim2.fromScale(pct,1)
-                local nv=math.floor(pct*(maxV-minV)+minV)
+                local nv=math.floor(pct*(maxN-minN)+minN)
                 local num=math.floor(nv*inc*100)/100
                 def=num; lv.Text=tostring(num)
                 Funcs:FireCallback(cb,def)
             end
+
             local function ctrlPos()
-                -- Compatível com Solara: usa AbsolutePosition do bar
-                local ok2, mx = pcall(function()
-                    return UserInputService:GetMouseLocation().X
-                end)
-                if not ok2 then
-                    mx = Player:GetMouse().X
-                end
+                local ok2, mx = pcall(function() return UserInputService:GetMouseLocation().X end)
+                if not ok2 then mx = Player:GetMouse().X end
                 local pct=math.clamp((mx-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
                 knob.Position=UDim2.fromScale(pct,0.5)
             end
+
             sh.MouseButton1Down:Connect(function()
+                CT({knob,"BackgroundTransparency",0,0.3})
                 Container.ScrollingEnabled=false
                 while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                     task.wait(); ctrlPos()
                 end
+                CT({knob,"BackgroundTransparency",0.2,0.3})
                 Container.ScrollingEnabled=true; SetFlag(flag,def)
             end)
+
             knob:GetPropertyChangedSignal("Position"):Connect(upd)
             lv:GetPropertyChangedSignal("Text"):Connect(function()
-                uisc.Scale=0.8; CT({uisc,"Scale",1,0.15})
+                uisc.Scale=0.3
+                CT({uisc,"Scale",1.2,0.1})
+                CT({lv,"Rotation",math.random(-1,1)*5,0.15,true})
+                CT({uisc,"Scale",1,0.2})
+                CT({lv,"Rotation",0,0.1})
             end)
+
             local function setSlider(v)
                 if type(v)~="number" then return end
                 local pct=math.clamp((v-minV)/(maxV-minV),0,1)
-                SetFlag(flag,v); CT({knob,"Position",UDim2.fromScale(pct,0.5),0.22,true})
+                SetFlag(flag,v); CT({knob,"Position",UDim2.fromScale(pct,0.5),0.3,true})
             end
             setSlider(def); upd()
 
@@ -987,11 +1074,13 @@ function MyLibrary:MakeWindow(Configs)
                 elseif type(v1)=="number" then setSlider(v1)
                 elseif type(v1)=="function" then cb={v1} end
             end
+            function S:Callback(...) Funcs:InsertCallback(cb,...)(tonumber(def)) end
             function S:Visible(...) Funcs:ToggleVisible(btn,...) end
             function S:Destroy() btn:Destroy() end
             return S
         end
 
+        -- ── AddDropdown ───────────────────────────────
         function Tab:AddDropdown(c)
             local dn  = c[1] or c.Name or c.Title or "Dropdown"
             local dd  = c.Desc or c.Description or ""
@@ -1031,9 +1120,9 @@ function MyLibrary:MakeWindow(Configs)
                 CanvasSize=UDim2.new(),ScrollingDirection=Enum.ScrollingDirection.Y,
                 AutomaticCanvasSize=Enum.AutomaticSize.Y,Active=true,
             },{
-                Create("UIPadding",{PaddingLeft=UDim.new(0,6),PaddingRight=UDim.new(0,6),
-                    PaddingTop=UDim.new(0,4),PaddingBottom=UDim.new(0,4)}),
-                Create("UIListLayout",{Padding=UDim.new(0,3)}),
+                Create("UIPadding",{PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),
+                    PaddingTop=UDim.new(0,5),PaddingBottom=UDim.new(0,5)}),
+                Create("UIListLayout",{Padding=UDim.new(0,4)}),
             }),"ScrollBar")
 
             local scrollSz=5; local dw=false
@@ -1047,26 +1136,30 @@ function MyLibrary:MakeWindow(Configs)
             end
             local function calcSz()
                 local n=0
-                for _,f in pairs(scf:GetChildren()) do if f:IsA("TextButton") then n+=1 end end
-                scrollSz=(math.clamp(n,0,10)*24)+10
-                if ncf.Visible then CT({df,"Size",UDim2.fromOffset(152,scrollSz),0.15}) end
+                for _,f in pairs(scf:GetChildren()) do
+                    if f:IsA("Frame") or f.Name=="Option" then n=n+1 end
+                end
+                scrollSz=(math.clamp(n,0,10)*25)+10
+                if ncf.Visible then CT({df,"Size",UDim2.fromOffset(152,scrollSz),0.2}) end
             end
             local function disable()
-                dw=true; ncf.Visible=false
-                CT({df,"Size",UDim2.new(0,152,0,0),0.15,true})
-                CT({arrow,"ImageColor3",Color3.fromRGB(255,255,255),0.15})
+                if dw then return end; dw=true
+                ncf.Visible=false
+                CT({arrow,"Rotation",0,0.2})
+                CT({df,"Size",UDim2.new(0,152,0,0),0.2,true})
+                CT({arrow,"ImageColor3",Color3.fromRGB(255,255,255),0.2})
                 arrow.Image="rbxassetid://10709791523"; dw=false
             end
             local function toggle()
                 if dw then return end; dw=true
                 if ncf.Visible then
-                    CT({df,"Size",UDim2.new(0,152,0,0),0.15,true})
-                    CT({arrow,"ImageColor3",Color3.fromRGB(255,255,255),0.15})
+                    CT({df,"Size",UDim2.new(0,152,0,0),0.2,true})
+                    CT({arrow,"ImageColor3",Color3.fromRGB(255,255,255),0.2})
                     arrow.Image="rbxassetid://10709791523"; ncf.Visible=false
                 else
                     ncf.Visible=true; arrow.Image="rbxassetid://10709790948"
-                    CT({arrow,"ImageColor3",Theme["Color Theme"],0.15})
-                    CT({df,"Size",UDim2.fromOffset(152,scrollSz),0.15,true})
+                    CT({arrow,"ImageColor3",Theme["Color Theme"],0.2})
+                    CT({df,"Size",UDim2.fromOffset(152,scrollSz),0.2,true})
                 end
                 dw=false
             end
@@ -1094,9 +1187,9 @@ function MyLibrary:MakeWindow(Configs)
             local function updSel()
                 for _,v in pairs(Options) do
                     local slt=multi and v.Stats or (v.Value==Selected)
-                    CT({v.nodes[2],"BackgroundTransparency",slt and 0 or 1,0.2})
-                    CT({v.nodes[2],"Size",slt and UDim2.fromOffset(4,14) or UDim2.fromOffset(4,4),0.2})
-                    CT({v.nodes[3],"TextTransparency",slt and 0 or 0.4,0.2})
+                    CT({v.nodes[2],"BackgroundTransparency",slt and 0 or 0.8,0.35})
+                    CT({v.nodes[2],"Size",slt and UDim2.fromOffset(4,12) or UDim2.fromOffset(4,4),0.35})
+                    CT({v.nodes[3],"TextTransparency",slt and 0 or 0.4,0.35})
                 end
                 updLabel()
             end
@@ -1106,7 +1199,8 @@ function MyLibrary:MakeWindow(Configs)
                 if Options[nm] then return end
                 Options[nm]={index=idx,Value=val,Name=nm,Stats=multi and (Selected[nm] or false) or false}
                 if multi then Selected[nm]=Options[nm].Stats end
-                local ob=Make("Button",scf,{Name="Option",Size=UDim2.new(1,0,0,21)})
+                local ob=Make("Button",scf,{Name="Option",Size=UDim2.new(1,0,0,21),
+                    Position=UDim2.new(0,0,0.5),AnchorPoint=Vector2.new(0,0.5)})
                 Make("Corner",ob,UDim.new(0,4))
                 local isel=InsertTheme(Create("Frame",ob,{
                     Position=UDim2.new(0,1,0.5),Size=UDim2.new(0,4,0,4),
@@ -1138,6 +1232,7 @@ function MyLibrary:MakeWindow(Configs)
             cbSel(); updSel()
 
             btn.Activated:Connect(toggle)
+            btn.Activated:Connect(calcSz)
             ncf.MouseButton1Down:Connect(disable)
             ncf.MouseButton1Click:Connect(disable)
             MainFrame:GetPropertyChangedSignal("Visible"):Connect(disable)
@@ -1148,8 +1243,15 @@ function MyLibrary:MakeWindow(Configs)
             local D={}
             function D:Visible(...) Funcs:ToggleVisible(btn,...) end
             function D:Destroy() btn:Destroy() end
-            function D:Add(...) local a={...}; for _,nm in ipairs(type(a[1])=="table" and a[1] or a) do addOpt(nm,nm) end end
-            function D:Remove(o) for i,v in pairs(Options) do if v.Name==o or i==o then remOpt(i,v.Value) end end end
+            function D:Callback(...) Funcs:InsertCallback(cb,...)(Selected) end
+            function D:Add(...)
+                local a={...}
+                local list = type(a[1])=="table" and a[1] or a
+                for _,nm in ipairs(list) do addOpt(nm,nm) end
+            end
+            function D:Remove(o)
+                for i,v in pairs(Options) do if v.Name==o or i==o then remOpt(i,v.Value) end end
+            end
             function D:Set(v1,cl)
                 if type(v1)=="table" then
                     if cl then for i,v in pairs(Options) do remOpt(i,v.Value) end end
@@ -1159,10 +1261,12 @@ function MyLibrary:MakeWindow(Configs)
             return D
         end
 
+        -- ── AddTextBox ────────────────────────────────
         function Tab:AddTextBox(c)
             local tn=c[1] or c.Name or c.Title or "TextBox"
             local td=c.Desc or c.Description or ""
-            local ph=c[5] or c.PlaceholderText or "Input..."
+            local tdef=c[2] or c.Default or ""
+            local ph=c[5] or c.PlaceholderText or "Input"
             local cl=c[3] or c.ClearText or false
             local cb=Funcs:GetCallback(c,4)
 
@@ -1176,7 +1280,7 @@ function MyLibrary:MakeWindow(Configs)
                 Position=UDim2.new(0.5,0,0.5,0),BackgroundTransparency=1,
                 Font=Enum.Font.GothamBold,TextScaled=true,
                 TextColor3=Theme["Color Text"],ClearTextOnFocus=cl,
-                PlaceholderText=ph,Text="",
+                PlaceholderText=ph,Text=(type(tdef)=="string" and #tdef:gsub(" ","")>0) and tdef or "",
             }),"Text")
             local pen=Create("ImageLabel",sf2,{
                 Size=UDim2.new(0,12,0,12),Position=UDim2.new(0,-5,0.5),
@@ -1187,8 +1291,8 @@ function MyLibrary:MakeWindow(Configs)
                 local t=tbi.Text
                 if #t:gsub(" ","")>0 then
                     if TBObj.OnChanging then
-                        local ok3, result = pcall(TBObj.OnChanging, t)
-                        if ok3 and result then t = result end
+                        local ok3,res=pcall(TBObj.OnChanging,t)
+                        if ok3 and res then t=res end
                     end
                     Funcs:FireCallback(cb,t); tbi.Text=t
                 end
@@ -1202,6 +1306,7 @@ function MyLibrary:MakeWindow(Configs)
             return TBObj
         end
 
+        -- ── AddDiscordInvite ──────────────────────────
         function Tab:AddDiscordInvite(c)
             local title =c[1] or c.Name or c.Title or "Discord"
             local desc  =c.Desc or c.Description or ""
@@ -1233,8 +1338,8 @@ function MyLibrary:MakeWindow(Configs)
             jb.Activated:Connect(function()
                 safeSetClipboard(invite)
                 if cd then return end; cd=true
-                SetProps(jb,{Text="Copied!",BackgroundColor3=Color3.fromRGB(80,80,80),TextColor3=Color3.fromRGB(150,150,150)})
-                task.wait(3)
+                SetProps(jb,{Text="Copied to Clipboard",BackgroundColor3=Color3.fromRGB(100,100,100),TextColor3=Color3.fromRGB(150,150,150)})
+                task.wait(5)
                 SetProps(jb,{Text="Join Server",BackgroundColor3=Color3.fromRGB(50,150,50),TextColor3=Color3.fromRGB(220,220,220)})
                 cd=false
             end)
@@ -1247,6 +1352,7 @@ function MyLibrary:MakeWindow(Configs)
         return Tab
     end -- MakeTab
 
+    -- ativa primeira aba automaticamente
     task.delay(0.12, function()
         if #MyLibrary.Tabs > 0 then MyLibrary.Tabs[1].func:Enable() end
     end)
