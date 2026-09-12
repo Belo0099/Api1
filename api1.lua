@@ -12,21 +12,21 @@ local MyLibrary = {
     Themes = {
         Main = {
             ["Color Hub 1"] = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),   -- Preto (topo)
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(120, 0, 0)),    -- Vermelho médio (meio)
-                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(200, 20, 20))   -- Vermelho (base)
+                ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
+                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(120, 0, 0)),
+                ColorSequenceKeypoint.new(1.00, Color3.fromRGB(200, 20, 20))
             }),
 
-            ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),       -- Fundo principal (Preto profundo)
-            ["Color Stroke"] = Color3.fromRGB(200, 20, 20),     -- Borda em vermelho
-            ["Color Theme"] = Color3.fromRGB(30, 30, 30),       -- Inputs / botões (Cinza escuro)
-            ["Color Text"] = Color3.fromRGB(255, 255, 255),     -- Texto principal (Branco puro)
-            ["Color Dark Text"] = Color3.fromRGB(160, 160, 160) -- Texto secundário (Cinza claro)
+            ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),
+            ["Color Stroke"] = Color3.fromRGB(200, 20, 20),
+            ["Color Theme"] = Color3.fromRGB(30, 30, 30),
+            ["Color Text"] = Color3.fromRGB(255, 255, 255),
+            ["Color Dark Text"] = Color3.fromRGB(160, 160, 160)
         },
     },
 	
 	Info = {
-		Version = "1.1.0"
+		Version = "1.1.0 Premium"
 	},
 	Save = {
 		UISize = {550, 380},
@@ -1068,7 +1068,7 @@ local GetFlag, SetFlag, CheckFlag do
 end
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = "redz Library V5",
+	Name = "redz Library V5 Premium",
 }, {
 	Create("UIScale", {
 		Scale = UIScale,
@@ -1178,7 +1178,7 @@ end
 
 AddEle("Corner", function(parent, CornerRadius)
 	local New = SetProps(Create("UICorner", parent, {
-		CornerRadius = CornerRadius or UDim.new(0, 7)
+		CornerRadius = CornerRadius or UDim.new(0, 10)
 	}), props)
 	return New
 end)
@@ -1187,7 +1187,7 @@ AddEle("Stroke", function(parent, props, ...)
 	local args = {...}
 	local New = InsertTheme(SetProps(Create("UIStroke", parent, {
 		Color = args[1] or Theme["Color Stroke"],
-		Thickness = args[2] or 1,
+		Thickness = args[2] or 1.5,
 		ApplyStrokeMode = "Border"
 	}), props), "Stroke")
 	return New
@@ -1256,7 +1256,7 @@ local function ButtonFrame(Instance, Title, Description, HolderSize)
 		Size = UDim2.new(1, 0, 0, 25),
 		AutomaticSize = "Y",
 		Name = "Option"
-	})Make("Corner", Frame, UDim.new(0, 6))
+	})Make("Corner", Frame, UDim.new(0, 8))
 	
 	LabelHolder = Create("Frame", Frame, {
 		AutomaticSize = "Y",
@@ -1345,7 +1345,7 @@ function MyLibrary:SetTheme(NewTheme)
 	SaveJson("redz library V5.json", MyLibrary.Save)
 	Theme = MyLibrary.Themes[NewTheme]
 	
-	Comnection:FireConnection("ThemeChanged", NewTheme)
+	Connection:FireConnection("ThemeChanged", NewTheme)
 	table.foreach(MyLibrary.Instances, function(_,Val)
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
@@ -1371,7 +1371,7 @@ function MyLibrary:SetScale(NewScale)
 end
 
 function MyLibrary:MakeWindow(Configs)
-	local WTitle = Configs[1] or Configs.Name or Configs.Title or "redz Library V5"
+	local WTitle = Configs[1] or Configs.Name or Configs.Title or "redz Library V5 Premium"
 	local WMiniText = Configs[2] or Configs.SubTitle or "by : redz9999"
 	
 	Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
@@ -1403,7 +1403,7 @@ function MyLibrary:MakeWindow(Configs)
 		Rotation = 45
 	})MakeDrag(MainFrame)
 	
-	local MainCorner = Make("Corner", MainFrame)
+	local MainCorner = Make("Corner", MainFrame, UDim.new(0, 12))
 	
 	local Components = Create("Folder", MainFrame, {
 		Name = "Components"
@@ -1419,8 +1419,36 @@ function MyLibrary:MakeWindow(Configs)
 		Name = "Top Bar"
 	})
 	
+	-- PERFIL DO USUÁRIO (PREMIUM FEATURE)
+	local ProfileFrame = Create("Frame", TopBar, {
+		Size = UDim2.new(0, 90, 0, 24),
+		Position = UDim2.new(0, 45, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundTransparency = 0.8,
+		BackgroundColor3 = Theme["Color Theme"]
+	})Make("Corner", ProfileFrame, UDim.new(0, 12))Make("Stroke", ProfileFrame)
+	
+	local PlayerAvatar = Create("ImageLabel", ProfileFrame, {
+		Size = UDim2.new(0, 18, 0, 18),
+		Position = UDim2.new(0, 3, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Image = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48),
+		BackgroundTransparency = 1
+	})Make("Corner", PlayerAvatar, UDim.new(1, 0))
+	
+	local PlayerName = InsertTheme(Create("TextLabel", ProfileFrame, {
+		Size = UDim2.new(1, -24, 1),
+		Position = UDim2.new(0, 24, 0),
+		Text = Player.Name:sub(1, 7),
+		TextColor3 = Theme["Color Text"],
+		Font = Enum.Font.GothamBold,
+		TextSize = 8,
+		BackgroundTransparency = 1,
+		TextXAlignment = "Left"
+	}), "Text")
+	
 	local Title = InsertTheme(Create("TextLabel", TopBar, {
-		Position = UDim2.new(0, 15, 0.5),
+		Position = UDim2.new(0, 145, 0.5),
 		AnchorPoint = Vector2.new(0, 0.5),
 		AutomaticSize = "XY",
 		Text = WTitle,
@@ -1452,7 +1480,7 @@ function MyLibrary:MakeWindow(Configs)
 		ScrollBarImageColor3 = Theme["Color Theme"],
 		Position = UDim2.new(0, 0, 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
-		ScrollBarThickness = 1.5,
+		ScrollBarThickness = 2,
 		BackgroundTransparency = 1,
 		ScrollBarImageTransparency = 0.2,
 		CanvasSize = UDim2.new(),
@@ -1584,36 +1612,36 @@ function MyLibrary:MakeWindow(Configs)
 	function Window:Minimize()
 		MainFrame.Visible = not MainFrame.Visible
 	end
-function Window:AddMinimizeButton(Configs)
-	local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-		Size = UDim2.fromOffset(35, 35),
-		Position = UDim2.fromScale(0.15, 0.15),
-		BackgroundTransparency = 1,
-		AutoButtonColor = false
-	}))
+	function Window:AddMinimizeButton(Configs)
+		local Button = MakeDrag(Create("ImageButton", ScreenGui, {
+			Size = UDim2.fromOffset(35, 35),
+			Position = UDim2.fromScale(0.15, 0.15),
+			BackgroundTransparency = 1,
+			AutoButtonColor = false
+		}))
 
-	local Stroke, Corner
+		local Stroke, Corner
 
-	if Configs.Corner then
-		Corner = Make("Corner", Button)
-		SetProps(Corner, Configs.Corner)
+		if Configs.Corner then
+			Corner = Make("Corner", Button)
+			SetProps(Corner, Configs.Corner)
+		end
+
+		if Configs.Stroke then
+			Stroke = Make("Stroke", Button)
+			SetProps(Stroke, Configs.Stroke)
+		end
+
+		SetProps(Button, Configs.Button)
+
+		Button.Activated:Connect(Window.Minimize)
+
+		return {
+			Stroke = Stroke,
+			Corner = Corner,
+			Button = Button
+		}
 	end
-
-	if Configs.Stroke then
-		Stroke = Make("Stroke", Button)
-		SetProps(Stroke, Configs.Stroke)
-	end
-
-	SetProps(Button, Configs.Button)
-
-	Button.Activated:Connect(Window.Minimize)
-
-	return {
-		Stroke = Stroke,
-		Corner = Corner,
-		Button = Button
-	}
-end
 	function Window:Set(Val1, Val2)
 		if type(Val1) == "string" and type(Val2) == "string" then
 			Title.Text = Val1
@@ -1660,7 +1688,7 @@ end
 				BackgroundTransparency = 1,
 				TextWrapped = true
 			}), "DarkText")
-		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame)
+		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 12))
 		
 		local ButtonsHolder = Create("Frame", Frame, {
 			Size = UDim2.fromScale(1, 0.35),
@@ -1699,7 +1727,7 @@ end
 			
 			ButtonCount = ButtonCount + 1
 			local Button = Make("Button", ButtonsHolder)
-			Make("Corner", Button)
+			Make("Corner", Button, UDim.new(0, 8))
 			SetProps(Button, {
 				Text = Name,
 				Font = Enum.Font.GothamBold,
@@ -1750,8 +1778,8 @@ end
 		end
 		
 		local TabSelect = Make("Button", MainScroll, {
-			Size = UDim2.new(1, 0, 0, 24)
-		})Make("Corner", TabSelect)
+			Size = UDim2.new(1, 0, 0, 26)
+		})Make("Corner", TabSelect, UDim.new(0, 8))
 		
 		local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
 			Size = UDim2.new(1, TIcon and -25 or -15, 1),
@@ -1776,7 +1804,7 @@ end
 		}), "Text")
 		
 		local Selected = InsertTheme(Create("Frame", TabSelect, {
-			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 13),
+			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 14),
 			Position = UDim2.new(0, 1, 0.5),
 			AnchorPoint = Vector2.new(0, 0.5),
 			BackgroundColor3 = Theme["Color Theme"],
@@ -1787,7 +1815,7 @@ end
 			Size = UDim2.new(1, 0, 1, 0),
 			Position = UDim2.new(0, 0, 1),
 			AnchorPoint = Vector2.new(0, 1),
-			ScrollBarThickness = 1.5,
+			ScrollBarThickness = 2,
 			BackgroundTransparency = 1,
 			ScrollBarImageTransparency = 0.2,
 			ScrollBarImageColor3 = Theme["Color Theme"],
@@ -1828,7 +1856,7 @@ end
 			CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.3})
 			CreateTween({LabelTitle, "TextTransparency", 0, 0.35})
 			CreateTween({LabelIcon, "ImageTransparency", 0, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 13), 0.35})
+			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 14), 0.35})
 			CreateTween({Selected, "BackgroundTransparency", 0, 0.35})
 		end
 		TabSelect.Activated:Connect(Tabs)
@@ -1962,7 +1990,7 @@ end
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
 			local ToggleHolder = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 35, 0, 18),
+				Size = UDim2.new(0, 37, 0, 19),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
@@ -1976,7 +2004,7 @@ end
 			})
 			
 			local Toggle = InsertTheme(Create("Frame", Slider, {
-				Size = UDim2.new(0, 12, 0, 12),
+				Size = UDim2.new(0, 13, 0, 13),
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Theme["Color Theme"]
@@ -2038,11 +2066,11 @@ end
 			local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
 			
 			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
+				Size = UDim2.new(0, 152, 0, 19),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
+			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 6))
 			
 			local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
 				Size = UDim2.new(0.85, 0, 0.85, 0),
@@ -2079,12 +2107,12 @@ end
 				Name = "DropdownFrame",
 				ClipsDescendants = true,
 				Active = true
-			})Make("Corner", DropFrame)Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
+			})Make("Corner", DropFrame, UDim.new(0, 8))Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
 			
 			local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
 				ScrollBarImageColor3 = Theme["Color Theme"],
 				Size = UDim2.new(1, 0, 1, 0),
-				ScrollBarThickness = 1.5,
+				ScrollBarThickness = 2,
 				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
 				CanvasSize = UDim2.new(),
@@ -2106,7 +2134,7 @@ end
 			local function Disable()
 				WaitClick = true
 				CreateTween({Arrow, "Rotation", 0, 0.2})
-				CreateTween({DropFrame, "Size", UDim2.new(0, 152, 0, 0), 0.2, true})
+				CreateTween({DropFrame, "Size", UDim2.new(0, 154, 0, 0), 0.2, true})
 				CreateTween({Arrow, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
 				Arrow.Image = "rbxassetid://10709791523"
 				NoClickFrame.Visible = false
@@ -2114,7 +2142,7 @@ end
 			end
 			
 			local function GetFrameSize()
-				return UDim2.fromOffset(152, ScrollSize)
+				return UDim2.fromOffset(154, ScrollSize)
 			end
 			
 			local function CalculateSize()
@@ -2124,7 +2152,7 @@ end
 						Count = Count + 1
 					end
 				end
-				ScrollSize = (math.clamp(Count, 0, 10) * 25) + 10
+				ScrollSize = (math.clamp(Count, 0, 10) * 26) + 10
 				if NoClickFrame.Visible then
 					NoClickFrame.Visible = true
 					CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
@@ -2137,7 +2165,7 @@ end
 				if NoClickFrame.Visible then
 					Arrow.Image = "rbxassetid://10709791523"
 					CreateTween({Arrow, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-					CreateTween({DropFrame, "Size", UDim2.new(0, 152, 0, 0), 0.2, true})
+					CreateTween({DropFrame, "Size", UDim2.new(0, 154, 0, 0), 0.2, true})
 					NoClickFrame.Visible = false
 				else
 					NoClickFrame.Visible = true
@@ -2200,7 +2228,7 @@ end
 						for _,v in pairs(Options) do
 							local nodes, Stats = v.nodes, v.Stats
 							CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.35})
-							CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.35})
+							CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(4, 13) or UDim2.fromOffset(4, 4), 0.35})
 							CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.35})
 						end
 					else
@@ -2208,7 +2236,7 @@ end
 							local Slt = v.Value == Selected
 							local nodes = v.nodes
 							CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.35})
-							CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(4, 14) or UDim2.fromOffset(4, 4), 0.35})
+							CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(4, 15) or UDim2.fromOffset(4, 4), 0.35})
 							CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.35})
 						end
 					end
@@ -2251,10 +2279,10 @@ end
 					
 					local Button = Make("Button", ScrollFrame, {
 						Name = "Option",
-						Size = UDim2.new(1, 0, 0, 21),
+						Size = UDim2.new(1, 0, 0, 22),
 						Position = UDim2.new(0, 0, 0.5),
 						AnchorPoint = Vector2.new(0, 0.5)
-					})Make("Corner", Button, UDim.new(0, 4))
+					})Make("Corner", Button, UDim.new(0, 6))
 					
 					local IsSelected = InsertTheme(Create("Frame", Button, {
 						Position = UDim2.new(0, 1, 0.5),
@@ -2395,24 +2423,24 @@ end
 			
 			local SliderBar = InsertTheme(Create("Frame", SliderHolder, {
 				BackgroundColor3 = Theme["Color Stroke"],
-				Size = UDim2.new(1, -20, 0, 6),
+				Size = UDim2.new(1, -20, 0, 7),
 				Position = UDim2.new(0.5, 0, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5)
-			}), "Stroke")Make("Corner", SliderBar)
+			}), "Stroke")Make("Corner", SliderBar, UDim.new(0.5, 0))
 			
 			local Indicator = InsertTheme(Create("Frame", SliderBar, {
 				BackgroundColor3 = Theme["Color Theme"],
 				Size = UDim2.fromScale(0.3, 1),
 				BorderSizePixel = 0
-			}), "Theme")Make("Corner", Indicator)
+			}), "Theme")Make("Corner", Indicator, UDim.new(0.5, 0))
 			
 			local SliderIcon = Create("Frame", SliderBar, {
-				Size = UDim2.new(0, 6, 0, 12),
+				Size = UDim2.new(0, 7, 0, 13),
 				BackgroundColor3 = Color3.fromRGB(220, 220, 220),
 				Position = UDim2.fromScale(0.3, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				BackgroundTransparency = 0.2
-			})Make("Corner", SliderIcon)
+			})Make("Corner", SliderIcon, UDim.new(0.5, 0))
 			
 			local LabelVal = InsertTheme(Create("TextLabel", SliderHolder, {
 				Size = UDim2.new(0, 14, 0, 14),
@@ -2519,11 +2547,11 @@ end
 			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
 			
 			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
+				Size = UDim2.new(0, 152, 0, 19),
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
+			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 6))
 			
 			local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
 				Size = UDim2.new(0.85, 0, 0.85, 0),
@@ -2577,7 +2605,7 @@ end
 			local Invite = Configs[3] or Configs.Invite or ""
 			
 			local InviteHolder = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 80),
+				Size = UDim2.new(1, 0, 0, 82),
 				Name = "Option",
 				BackgroundTransparency = 1
 			})
@@ -2594,18 +2622,18 @@ end
 			})
 			
 			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 65),
+				Size = UDim2.new(1, 0, 0, 67),
 				AnchorPoint = Vector2.new(0, 1),
 				Position = UDim2.new(0, 0, 1),
 				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Frame")Make("Corner", FrameHolder)
+			}), "Frame")Make("Corner", FrameHolder, UDim.new(0, 8))
 			
 			local ImageLabel = Create("ImageLabel", FrameHolder, {
 				Size = UDim2.new(0, 30, 0, 30),
 				Position = UDim2.new(0, 7, 0, 7),
 				Image = Logo,
 				BackgroundTransparency = 1
-			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
+			})Make("Corner", ImageLabel, UDim.new(0, 6))Make("Stroke", ImageLabel)
 			
 			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
 				Size = UDim2.new(1, -52, 0, 15),
@@ -2632,7 +2660,7 @@ end
 			}), "DarkText")
 			
 			local JoinButton = Create("TextButton", FrameHolder, {
-				Size = UDim2.new(1, -14, 0, 16),
+				Size = UDim2.new(1, -14, 0, 17),
 				AnchorPoint = Vector2.new(0.5, 1),
 				Position = UDim2.new(0.5, 0, 1, -7),
 				Text = "Join Server",
@@ -2640,7 +2668,7 @@ end
 				TextSize = 12,
 				TextColor3 = Color3.fromRGB(220, 220, 220),
 				BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-			})Make("Corner", JoinButton, UDim.new(0, 5))
+			})Make("Corner", JoinButton, UDim.new(0, 6))
 			
 			local ClickDelay
 			JoinButton.Activated:Connect(function()
